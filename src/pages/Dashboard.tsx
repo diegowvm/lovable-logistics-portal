@@ -2,10 +2,13 @@ import { useState, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Building2, LogOut, Package, Truck, Users, Settings } from "lucide-react";
+import { Building2, LogOut, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { Session, User as SupabaseUser } from "@supabase/supabase-js";
+import { DashboardCards } from "@/components/dashboard/DashboardCards";
+import { OrdersList } from "@/components/orders/OrdersList";
+import { OrderForm } from "@/components/orders/OrderForm";
 
 interface EmpresaData {
   id: string;
@@ -163,117 +166,54 @@ const Dashboard = () => {
           </p>
         </div>
 
-        {/* Cards de Informações */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
-          <Card className="shadow-custom-sm hover:shadow-custom-md transition-smooth">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Pedidos Ativos</CardTitle>
-              <Package className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Nenhum pedido ativo no momento
-              </p>
-            </CardContent>
-          </Card>
+        <div className="space-y-8">
+          {/* Cards de Estatísticas */}
+          <DashboardCards />
 
-          <Card className="shadow-custom-sm hover:shadow-custom-md transition-smooth">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Entregas Hoje</CardTitle>
-              <Truck className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Nenhuma entrega programada
-              </p>
-            </CardContent>
-          </Card>
+          {/* Seção Principal */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+            <OrderForm />
 
-          <Card className="shadow-custom-sm hover:shadow-custom-md transition-smooth">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Entregadores</CardTitle>
-              <Users className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold">0</div>
-              <p className="text-xs text-muted-foreground">
-                Disponíveis no momento
-              </p>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-custom-sm hover:shadow-custom-md transition-smooth">
-            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-              <CardTitle className="text-sm font-medium">Status</CardTitle>
-              <Settings className="h-4 w-4 text-muted-foreground" />
-            </CardHeader>
-            <CardContent>
-              <div className="text-2xl font-bold text-green-600">Ativo</div>
-              <p className="text-xs text-muted-foreground">
-                Sistema operacional
-              </p>
-            </CardContent>
-          </Card>
-        </div>
-
-        {/* Seção Principal */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          <Card className="shadow-custom-md">
-            <CardHeader>
-              <CardTitle>Novos Pedidos</CardTitle>
-              <CardDescription>
-                Crie e gerencie suas solicitações de entrega
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <p className="text-muted-foreground">
-                Em breve você poderá criar pedidos diretamente pelo painel e acompanhar suas entregas em tempo real.
-              </p>
-              <Button variant="cta" className="w-full" disabled>
-                <Package className="mr-2 h-4 w-4" />
-                Criar Novo Pedido (Em Breve)
-              </Button>
-            </CardContent>
-          </Card>
-
-          <Card className="shadow-custom-md">
-            <CardHeader>
-              <CardTitle>Dados da Empresa</CardTitle>
-              <CardDescription>
-                Informações do seu cadastro
-              </CardDescription>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              {empresa && (
-                <div className="space-y-3">
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Nome Fantasia</p>
-                    <p className="text-base">{empresa.nome_fantasia}</p>
-                  </div>
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Razão Social</p>
-                    <p className="text-base">{empresa.razao_social}</p>
-                  </div>
-                  {empresa.cnpj && (
+            <Card className="shadow-custom-md">
+              <CardHeader>
+                <CardTitle>Dados da Empresa</CardTitle>
+                <CardDescription>
+                  Informações do seu cadastro
+                </CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-4">
+                {empresa && (
+                  <div className="space-y-3">
                     <div>
-                      <p className="text-sm font-medium text-muted-foreground">CNPJ</p>
-                      <p className="text-base">{empresa.cnpj}</p>
+                      <p className="text-sm font-medium text-muted-foreground">Nome Fantasia</p>
+                      <p className="text-base">{empresa.nome_fantasia}</p>
                     </div>
-                  )}
-                  <div>
-                    <p className="text-sm font-medium text-muted-foreground">Localização</p>
-                    <p className="text-base">{empresa.cidade}, {empresa.estado}</p>
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Razão Social</p>
+                      <p className="text-base">{empresa.razao_social}</p>
+                    </div>
+                    {empresa.cnpj && (
+                      <div>
+                        <p className="text-sm font-medium text-muted-foreground">CNPJ</p>
+                        <p className="text-base">{empresa.cnpj}</p>
+                      </div>
+                    )}
+                    <div>
+                      <p className="text-sm font-medium text-muted-foreground">Localização</p>
+                      <p className="text-base">{empresa.cidade}, {empresa.estado}</p>
+                    </div>
                   </div>
-                </div>
-              )}
-              <Button variant="outline" className="w-full" disabled>
-                <Settings className="mr-2 h-4 w-4" />
-                Editar Dados (Em Breve)
-              </Button>
-            </CardContent>
-          </Card>
+                )}
+                <Button variant="outline" className="w-full" disabled>
+                  <Settings className="mr-2 h-4 w-4" />
+                  Editar Dados (Em Breve)
+                </Button>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Lista de Pedidos */}
+          <OrdersList />
         </div>
       </main>
     </div>
