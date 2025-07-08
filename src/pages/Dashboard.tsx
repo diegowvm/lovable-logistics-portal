@@ -9,7 +9,6 @@ import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { DashboardCards } from "@/components/dashboard/DashboardCards";
 import { OrdersList } from "@/components/orders/OrdersList";
 import { OrderForm } from "@/components/orders/OrderForm";
-
 interface EmpresaData {
   id: string;
   nome_fantasia: string;
@@ -18,65 +17,60 @@ interface EmpresaData {
   cidade: string;
   estado: string;
 }
-
 const Dashboard = () => {
   const navigate = useNavigate();
-  const { toast } = useToast();
+  const {
+    toast
+  } = useToast();
   const [loading, setLoading] = useState(true);
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [empresa, setEmpresa] = useState<EmpresaData | null>(null);
-
   useEffect(() => {
     // Configurar listener de mudanças de autenticação
-    const { data: { subscription } } = supabase.auth.onAuthStateChange(
-      (event, session) => {
-        setSession(session);
-        setUser(session?.user ?? null);
-        
-        if (!session?.user) {
-          navigate("/auth");
-        }
+    const {
+      data: {
+        subscription
       }
-    );
-
-    // Verificar sessão existente
-    supabase.auth.getSession().then(({ data: { session } }) => {
+    } = supabase.auth.onAuthStateChange((event, session) => {
       setSession(session);
       setUser(session?.user ?? null);
-      
+      if (!session?.user) {
+        navigate("/auth");
+      }
+    });
+
+    // Verificar sessão existente
+    supabase.auth.getSession().then(({
+      data: {
+        session
+      }
+    }) => {
+      setSession(session);
+      setUser(session?.user ?? null);
       if (!session?.user) {
         navigate("/auth");
         return;
       }
-      
+
       // Buscar dados da empresa
       fetchEmpresaData(session.user.id);
     });
-
     return () => subscription.unsubscribe();
   }, [navigate]);
-
   const fetchEmpresaData = async (authUserId: string) => {
     try {
-      const { data, error } = await supabase
-        .from('empresas')
-        .select(`
+      const {
+        data,
+        error
+      } = await supabase.from('empresas').select(`
           id,
           nome_fantasia,
           razao_social,
           cnpj,
           cidade,
           estado
-        `)
-        .eq('usuario_id', (await supabase
-          .from('usuarios')
-          .select('id')
-          .eq('auth_user_id', authUserId)
-          .single()
-        ).data?.id)
-        .single();
-
+        `).eq('usuario_id', (await supabase.from('usuarios').select('id').eq('auth_user_id', authUserId).single()).data?.id).single();
       if (error) {
         console.error('Erro ao buscar dados da empresa:', error);
         toast({
@@ -86,7 +80,6 @@ const Dashboard = () => {
         });
         return;
       }
-
       setEmpresa(data);
     } catch (error) {
       console.error('Erro ao buscar empresa:', error);
@@ -94,10 +87,11 @@ const Dashboard = () => {
       setLoading(false);
     }
   };
-
   const handleLogout = async () => {
     try {
-      const { error } = await supabase.auth.signOut();
+      const {
+        error
+      } = await supabase.auth.signOut();
       if (error) {
         toast({
           variant: "destructive",
@@ -106,26 +100,20 @@ const Dashboard = () => {
         });
         return;
       }
-      
       navigate("/");
     } catch (error) {
       console.error('Erro no logout:', error);
     }
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+    return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
           <p className="text-muted-foreground">Carregando...</p>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-gradient-subtle">
+  return <div className="min-h-screen bg-gradient-subtle">
       {/* Header */}
       <header className="bg-primary shadow-custom-md">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -142,12 +130,7 @@ const Dashboard = () => {
               </div>
             </div>
             
-            <Button
-              variant="outline"
-              size="sm"
-              onClick={handleLogout}
-              className="border-primary-foreground/20 text-primary-foreground hover:bg-primary-foreground/10"
-            >
+            <Button variant="outline" size="sm" onClick={handleLogout} className="border-primary-foreground/20 text-primary-foreground bg-sky-800 hover:bg-sky-700">
               <LogOut className="h-4 w-4 mr-2" />
               Sair
             </Button>
@@ -182,8 +165,7 @@ const Dashboard = () => {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                {empresa && (
-                  <div className="space-y-3">
+                {empresa && <div className="space-y-3">
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Nome Fantasia</p>
                       <p className="text-base">{empresa.nome_fantasia}</p>
@@ -192,18 +174,15 @@ const Dashboard = () => {
                       <p className="text-sm font-medium text-muted-foreground">Razão Social</p>
                       <p className="text-base">{empresa.razao_social}</p>
                     </div>
-                    {empresa.cnpj && (
-                      <div>
+                    {empresa.cnpj && <div>
                         <p className="text-sm font-medium text-muted-foreground">CNPJ</p>
                         <p className="text-base">{empresa.cnpj}</p>
-                      </div>
-                    )}
+                      </div>}
                     <div>
                       <p className="text-sm font-medium text-muted-foreground">Localização</p>
                       <p className="text-base">{empresa.cidade}, {empresa.estado}</p>
                     </div>
-                  </div>
-                )}
+                  </div>}
                 <Button variant="outline" className="w-full" disabled>
                   <Settings className="mr-2 h-4 w-4" />
                   Editar Dados (Em Breve)
@@ -216,8 +195,6 @@ const Dashboard = () => {
           <OrdersList />
         </div>
       </main>
-    </div>
-  );
+    </div>;
 };
-
 export default Dashboard;
