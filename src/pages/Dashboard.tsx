@@ -9,6 +9,8 @@ import { Session, User as SupabaseUser } from "@supabase/supabase-js";
 import { DashboardCards } from "@/components/dashboard/DashboardCards";
 import { OrdersList } from "@/components/orders/OrdersList";
 import { OrderForm } from "@/components/orders/OrderForm";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogTitle, DialogDescription } from "@/components/ui/dialog";
+import { Plus } from "lucide-react";
 interface EmpresaData {
   id: string;
   nome_fantasia: string;
@@ -26,6 +28,7 @@ const Dashboard = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [empresa, setEmpresa] = useState<EmpresaData | null>(null);
+  const [orderModalOpen, setOrderModalOpen] = useState(false);
   const fetchEmpresaData = useCallback(async (authUserId: string) => {
     try {
       const {
@@ -129,15 +132,30 @@ const Dashboard = () => {
                 </p>
               </div>
             </div>
-            
-            <Button variant="outline" size="sm" onClick={handleLogout} className="border-primary-foreground/20 text-primary-foreground bg-sky-800 hover:bg-sky-700">
-              <LogOut className="h-4 w-4 mr-2" />
-              Sair
-            </Button>
+            <div className="flex gap-2 items-center">
+              <Dialog open={orderModalOpen} onOpenChange={setOrderModalOpen}>
+                <DialogTrigger asChild>
+                  <Button variant="cta" size="lg" className="gap-2">
+                    <Plus className="h-5 w-5" />
+                    Novo Pedido
+                  </Button>
+                </DialogTrigger>
+                <DialogContent>
+                  <DialogHeader>
+                    <DialogTitle>Novo Pedido</DialogTitle>
+                    <DialogDescription>Preencha os dados para criar um novo pedido.</DialogDescription>
+                  </DialogHeader>
+                  <OrderForm />
+                </DialogContent>
+              </Dialog>
+              <Button variant="outline" size="sm" onClick={handleLogout} className="border-primary-foreground/20 text-primary-foreground bg-sky-800 hover:bg-sky-700">
+                <LogOut className="h-4 w-4 mr-2" />
+                Sair
+              </Button>
+            </div>
           </div>
         </div>
       </header>
-
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         <div className="mb-8">
@@ -148,15 +166,13 @@ const Dashboard = () => {
             Gerencie suas entregas e pedidos de forma eficiente
           </p>
         </div>
-
-        <div className="space-y-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 items-start">
           {/* Cards de Estatísticas */}
-          <DashboardCards />
-
+          <div className="lg:col-span-1">
+            <DashboardCards />
+          </div>
           {/* Seção Principal */}
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-            <OrderForm />
-
+          <div className="lg:col-span-2 space-y-8">
             <Card className="shadow-custom-md">
               <CardHeader>
                 <CardTitle>Dados da Empresa</CardTitle>
@@ -189,10 +205,9 @@ const Dashboard = () => {
                 </Button>
               </CardContent>
             </Card>
+            {/* Lista de Pedidos */}
+            <OrdersList />
           </div>
-
-          {/* Lista de Pedidos */}
-          <OrdersList />
         </div>
       </main>
     </div>;
