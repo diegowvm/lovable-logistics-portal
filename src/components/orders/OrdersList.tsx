@@ -1,3 +1,4 @@
+import React from "react";
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
@@ -43,7 +44,7 @@ const statusOptions = [
 ];
 
 const getStatusBadge = (status: string) => {
-  const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive"; icon: any }> = {
+  const statusMap: Record<string, { label: string; variant: "default" | "secondary" | "destructive"; icon: React.ElementType }> = {
     recebido: { label: "Recebido", variant: "secondary", icon: Package },
     enviado: { label: "Enviado", variant: "default", icon: Truck },
     a_caminho: { label: "A Caminho", variant: "default", icon: MapPin },
@@ -93,7 +94,7 @@ export const OrdersList = () => {
 
       // Aplicar filtro de status se não for "all"
       if (statusFilter !== "all") {
-        query = query.eq('status', statusFilter as any);
+        query = query.eq('status', statusFilter);
       }
 
       const { data, error } = await query;

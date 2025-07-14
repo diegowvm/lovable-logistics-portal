@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Package, Truck, Users, Settings } from "lucide-react";
 import { supabase } from "@/integrations/supabase/client";
@@ -21,7 +21,7 @@ export const DashboardCards = () => {
   });
   const [loading, setLoading] = useState(true);
 
-  const fetchStats = async () => {
+  const fetchStats = useCallback(async () => {
     try {
       setLoading(true);
 
@@ -72,11 +72,11 @@ export const DashboardCards = () => {
     } finally {
       setLoading(false);
     }
-  };
+  }, [toast]);
 
   useEffect(() => {
     fetchStats();
-  }, []);
+  }, [fetchStats]);
 
   const cards = [
     {

@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
@@ -26,6 +26,35 @@ const Dashboard = () => {
   const [user, setUser] = useState<SupabaseUser | null>(null);
   const [session, setSession] = useState<Session | null>(null);
   const [empresa, setEmpresa] = useState<EmpresaData | null>(null);
+  const fetchEmpresaData = useCallback(async (authUserId: string) => {
+    try {
+      const {
+        data,
+        error
+      } = await supabase.from('empresas').select(`
+          id,
+          nome_fantasia,
+          razao_social,
+          cnpj,
+          cidade,
+          estado
+        `).eq('usuario_id', (await supabase.from('usuarios').select('id').eq('auth_user_id', authUserId).single()).data?.id).single();
+      if (error) {
+        console.error('Erro ao buscar dados da empresa:', error);
+        toast({
+          variant: "destructive",
+          title: "Erro",
+          description: "Não foi possível carregar os dados da empresa."
+        });
+        return;
+      }
+      setEmpresa(data);
+    } catch (error) {
+      console.error('Erro ao buscar empresa:', error);
+    } finally {
+      setLoading(false);
+    }
+  }, [toast]);
   useEffect(() => {
     // Configurar listener de mudanças de autenticação
     const {
@@ -57,36 +86,7 @@ const Dashboard = () => {
       fetchEmpresaData(session.user.id);
     });
     return () => subscription.unsubscribe();
-  }, [navigate]);
-  const fetchEmpresaData = async (authUserId: string) => {
-    try {
-      const {
-        data,
-        error
-      } = await supabase.from('empresas').select(`
-          id,
-          nome_fantasia,
-          razao_social,
-          cnpj,
-          cidade,
-          estado
-        `).eq('usuario_id', (await supabase.from('usuarios').select('id').eq('auth_user_id', authUserId).single()).data?.id).single();
-      if (error) {
-        console.error('Erro ao buscar dados da empresa:', error);
-        toast({
-          variant: "destructive",
-          title: "Erro",
-          description: "Não foi possível carregar os dados da empresa."
-        });
-        return;
-      }
-      setEmpresa(data);
-    } catch (error) {
-      console.error('Erro ao buscar empresa:', error);
-    } finally {
-      setLoading(false);
-    }
-  };
+  }, [navigate, fetchEmpresaData]);
   const handleLogout = async () => {
     try {
       const {
